@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HuggingFace Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #34495e;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .user-message {
+            background-color: #16a085;
+            padding: 10px;
+            border-radius: 8px;
+            align-self: flex-end;
+            max-width: 80%;
+        }
+        .bot-message {
+            background-color: #2980b9;
+            padding: 10px;
+            border-radius: 8px;
+            align-self: flex-start;
+            max-width: 80%;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            background-color: #1abc9c;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #16a085;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Chatbot</h2>
+        <div class="chat-box" id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        // Your HuggingFace API Key and Model endpoint
+        const apiKey = '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';  // Replace with your HuggingFace API Key
+        const modelEndpoint = 'https://api-inference.huggingface.co/models/gpt2';  // You can choose other models too
+
+        // Send message function
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;
+
+            // Display the user's message in the chat box
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="user-message">${userInput}</div>`;
+            document.getElementById('user-input').value = '';  // Clear input box
+            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom
+
+            // Fetch response from HuggingFace API
+            const response = await fetch(modelEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    inputs: userInput,
+                }),
+            });
+
+            // Process the response from the API
+            const data = await response.json();
+            const botReply = data[0]?.generated_text || 'Sorry, I didn’t understand that.';
+
+            // Display the bot's message in the chat box
+            chatBox.innerHTML += `<div class="bot-message">${botReply}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom
+        }
+    </script>
+</body>
+</html>
